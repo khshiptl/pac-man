@@ -102,6 +102,15 @@
 
   #restartBtn {display:none;margin-top:20px;background:#111;color:#39ff14;border:2px solid #39ff14;
     padding:10px;font-family:'Press Start 2P',cursive;cursor:pointer;box-shadow:0 0 10px #39ff14;}
+
+  /* 📱 Mobile adjustments */
+  @media (max-width: 600px) {
+    .envelope { width: 220px; height: 140px; }
+    .letter p { font-size: 12px; }
+    .present { width: 110px; height: 110px; }
+    .love-pic { max-width: 150px; }
+    .ticket { width: 240px; font-size: 12px; }
+  }
 </style>
 </head>
 <body>
@@ -133,7 +142,8 @@ function typeWriterEffect(message, elementId, speed=80) {
 }
 function startMarquee(element) {
   let pos = element.parentElement.offsetWidth;
-  const scrollSpeed = 2;
+  // adaptive speed: faster on small screens
+  const scrollSpeed = window.innerWidth < 600 ? 4 : 2;
   function scroll(){
     pos -= scrollSpeed;
     element.style.transform=`translateX(${pos}px)`;
