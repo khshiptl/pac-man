@@ -31,7 +31,7 @@
 
   /* Envelope */
   .envelope { position: relative; width: 280px; height: 180px; background: #111; border: 4px solid #39ff14;
-    box-shadow: 0 0 20px #39ff14; cursor: pointer; overflow: hidden; opacity: 1; transition: opacity 0.5s ease; }
+    box-shadow: 0 0 20px #39ff14; cursor: pointer; overflow: hidden; opacity: 1; transition: opacity 0.3s ease; }
   .envelope.fade-out { opacity: 0; pointer-events: none; }
   .flap { position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(135deg, #ff33cc, #ff0066);
@@ -40,6 +40,17 @@
     border: 3px solid #ff33cc; color: #39ff14; padding: 20px; box-sizing: border-box; transition: top 1.5s ease; z-index: 1;
     text-shadow: 0 0 10px #39ff14; display: flex; align-items: center; justify-content: center; overflow: hidden; }
   .letter p { font-size: 14px; white-space: nowrap; position: relative; }
+
+  /* Smooth glide animation */
+  @keyframes glideText {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+  .marquee-text {
+    display: inline-block;
+    white-space: nowrap;
+    animation: glideText 10s linear forwards;
+  }
 
   /* Fireworks */
   #fireworks { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
@@ -136,31 +147,30 @@
 
 <script>
 function typeWriterEffect(message, elementId, speed=80) {
-  let i=0; const element=document.getElementById(elementId); element.innerHTML="";
-  function typing(){ if(i<message.length){element.innerHTML+=message.charAt(i);i++;setTimeout(typing,speed);} else { startMarquee(element);} }
-  typing();
-}
-function startMarquee(element) {
-  let pos = element.parentElement.offsetWidth;
-  // adaptive speed: faster on small screens
-  const scrollSpeed = window.innerWidth < 600 ? 4 : 2;
-  function scroll(){
-    pos -= scrollSpeed;
-    element.style.transform=`translateX(${pos}px)`;
-    if(pos > -element.scrollWidth - 40){
-      requestAnimationFrame(scroll);
+  let i=0; 
+  const element=document.getElementById(elementId);
+  element.innerHTML="";
+  function typing(){
+    if(i<message.length){
+      element.innerHTML+=message.charAt(i);
+      i++;
+      setTimeout(typing,speed);
     } else {
-      const envelope=document.getElementById("envelope");
-      envelope.classList.add("fade-out");
-      setTimeout(()=>{
-        envelope.style.display="none";
-        const present=document.getElementById("present");
-        present.classList.add("visible");
-        document.getElementById("presentText").style.display="block";
-      }, 500); // faster disappear
+      // after typing, trigger smooth CSS glide
+      element.classList.add("marquee-text");
+      element.addEventListener("animationend", ()=> {
+        const envelope=document.getElementById("envelope");
+        envelope.classList.add("fade-out");
+        setTimeout(()=>{
+          envelope.style.display="none";
+          const present=document.getElementById("present");
+          present.classList.add("visible");
+          document.getElementById("presentText").style.display="block";
+        },300);
+      }, {once:true});
     }
   }
-  scroll();
+  typing();
 }
 function openEnvelope(){
   document.getElementById("hint").style.display="none";
