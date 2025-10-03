@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>National BF Day - Retro Gamer</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    overflow: hidden;
+    color: #39ff14;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: #000;
+    background-image:
+      repeating-linear-gradient(to right, rgba(57,255,20,0.15) 0px, rgba(57,255,20,0.15) 2px, transparent 2px, transparent 40px),
+      repeating-linear-gradient(to bottom, rgba(57,255,20,0.15) 0px, rgba(57,255,20,0.15) 2px, transparent 2px, transparent 40px);
+    z-index: -1;
+  }
+  .hint { font-size: 14px; margin: 20px; color: #ff33cc; animation: blink 1s infinite; }
+  @keyframes blink { 50% { opacity: 0.4; } }
+  .center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; position: relative; }
+
+  /* Envelope */
+  .envelope { position: relative; width: 280px; height: 180px; background: #111; border: 4px solid #39ff14;
+    box-shadow: 0 0 20px #39ff14; cursor: pointer; overflow: hidden; opacity: 1; transition: opacity 0.5s ease; }
+  .envelope.fade-out { opacity: 0; pointer-events: none; }
+  .flap { position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, #ff33cc, #ff0066);
+    clip-path: polygon(0 0, 100% 0, 50% 50%); transform-origin: top; transition: transform 1s; z-index: 2; }
+  .letter { position: absolute; top: 100%; left: 0; width: 100%; height: 100%; background: #000;
+    border: 3px solid #ff33cc; color: #39ff14; padding: 20px; box-sizing: border-box; transition: top 1.5s ease; z-index: 1;
+    text-shadow: 0 0 10px #39ff14; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .letter p { font-size: 14px; white-space: nowrap; position: relative; }
+
+  /* Fireworks */
+  #fireworks { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+
+  /* Present */
+  .present { display: none; margin: 30px auto; width: 140px; height: 140px; background: #ff33cc; border: 4px solid #fff;
+    box-shadow: 0 0 20px #ff33cc, 0 0 40px #ff33cc; cursor: pointer; position: relative; border-radius: 6px;
+    opacity: 0; transform: scale(0.8); transition: all 1s ease; }
+  .present.visible { display: block; opacity: 1; transform: scale(1); }
+  .present::before { content: ""; position: absolute; top: 0; left: 50%; width: 20px; height: 100%; background: #39ff14;
+    transform: translateX(-50%); box-shadow: 0 0 15px #39ff14; }
+  .present::after { content: ""; position: absolute; top: 50%; left: 0; width: 100%; height: 20px; background: #39ff14;
+    transform: translateY(-50%); box-shadow: 0 0 15px #39ff14; }
+  .bow { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 50px; height: 25px;
+    background: #39ff14; border-radius: 50% 50% 0 0; box-shadow: 0 0 15px #39ff14; animation: bowBounce 1.5s infinite; }
+  .bow::before, .bow::after { content: ""; position: absolute; width: 25px; height: 25px; background: #39ff14;
+    border-radius: 50%; top: 0; box-shadow: 0 0 15px #39ff14; }
+  .bow::before { left: -25px; }
+  .bow::after { right: -25px; }
+  @keyframes bowBounce {0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-5px);} }
+  .shake { animation: shakeBox 0.5s; }
+  @keyframes shakeBox {0%,100%{transform:rotate(0);}25%{transform:rotate(5deg);}50%{transform:rotate(-5deg);}75%{transform:rotate(3deg);} }
+  .present-text { display:none; font-size: 12px; margin-top: 10px; color: #39ff14; }
+
+  /* Ticket */
+  .ticket { display:none; padding:15px; border:3px dashed #39ff14; border-radius: 12px; background:#000; width:320px;
+    font-size:14px; color:#ff33cc; box-shadow: 0 0 25px #ff33cc; position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%,0); opacity: 0; z-index: 20; }
+  .ticket.show { display:block; animation: popOutOfBox 1s ease forwards; }
+  @keyframes popOutOfBox {0%{transform:translate(-50%,40%) scale(0.5) rotate(-15deg);opacity:0;}
+    50%{transform:translate(-50%,-80%) scale(1.2) rotate(10deg);opacity:1;}
+    70%{transform:translate(-50%,-60%) scale(0.95) rotate(-5deg);}
+    100%{transform:translate(-50%,-70%) scale(1) rotate(0);opacity:1;}}
+
+  /* Second present */
+  .present2 { display:none; width:90px;height:90px; background:#00ffff; box-shadow:0 0 20px #00ffff,0 0 40px #00ffff;
+    position:fixed;top:40px;left:40px; border-radius:6px; opacity:0; transform:scale(0.8); transition:all 1s ease; cursor:pointer; }
+  .present2.visible {display:block;opacity:1;transform:scale(1);}
+  .present2::before { content:""; position:absolute; top:0; left:50%; width:15px; height:100%; background:#ff33cc;
+    transform:translateX(-50%); box-shadow:0 0 10px #ff33cc; }
+  .present2::after { content:""; position:absolute; top:50%; left:0; width:100%; height:15px; background:#ff33cc;
+    transform:translateY(-50%); box-shadow:0 0 10px #ff33cc; }
+  .present2 .bow { position:absolute; top:-20px; left:50%; transform:translateX(-50%); width:40px; height:20px; background:#ff33cc;
+    border-radius:50% 50% 0 0; box-shadow:0 0 10px #ff33cc; animation:bowBounce 1.5s infinite; }
+  .present2 .bow::before,.present2 .bow::after{ content:""; position:absolute; width:20px;height:20px; background:#ff33cc;
+    border-radius:50%; top:0; box-shadow:0 0 10px #ff33cc; }
+  .present2 .bow::before{left:-20px;} .present2 .bow::after{right:-20px;}
+  #presentText2 {display:none;position:fixed;top:135px;left:40px;font-size:10px;color:#00ffff;}
+
+  /* Love container */
+  .love-container { visibility:hidden;opacity:0; display:flex;flex-direction:column; align-items:center;gap:20px;
+    position:absolute; top:50%; left:calc(50% + 200px); transform:translateY(-50%); transition:opacity 1s ease; }
+  .love-container.show {visibility:visible;opacity:1;}
+  .love-pic {max-width:200px;border:4px solid #ff33cc;box-shadow:0 0 20px #ff33cc;border-radius:12px;
+    opacity:0;transform:scale(0.8);transition:all 0.8s ease;}
+  .love-pic.show {opacity:1;transform:scale(1);}
+  .love-text {font-size:16px;color:#ff33cc;text-shadow:0 0 10px #ff33cc;opacity:0;transition:opacity 1s ease;}
+  .love-text.show {opacity:1;animation:pulse 1.5s infinite;}
+  @keyframes pulse {0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+
+  #restartBtn {display:none;margin-top:20px;background:#111;color:#39ff14;border:2px solid #39ff14;
+    padding:10px;font-family:'Press Start 2P',cursive;cursor:pointer;box-shadow:0 0 10px #39ff14;}
+</style>
+</head>
+<body>
+<div class="center">
+  <div class="hint" id="hint">▶ CLICK THE ENVELOPE TO BEGIN ◀</div>
+  <div class="envelope" id="envelope" onclick="openEnvelope()">
+    <div class="flap" id="flap"></div>
+    <div class="letter" id="letter"><p id="letterText"></p></div>
+  </div>
+  <canvas id="fireworks"></canvas>
+  <div class="present" id="present" onclick="openPresent()"><div class="bow"></div></div>
+  <div class="present-text" id="presentText"> OPEN PRESENT </div>
+  <div class="ticket" id="ticket">🎟 DINNER TICKET (MY TREAT) <br><br>📍 [ROOM 112]<br>📅 [ANY TIME YOU PLEASE]<br>⏰ [TBD (OFFER EXPIRES AFTER OCTOBER)]</div>
+  <div class="present2" id="present2" onclick="openPresent2()"><div class="bow"></div></div>
+  <div id="presentText2"> CLICK </div>
+  <div class="love-container" id="loveContainer">
+    <img src="photo1.jpg" class="love-pic">
+    <p class="love-text">I LOVE YOU ❤</p>
+    <img src="photo2.jpg" class="love-pic">
+  </div>
+  <button id="restartBtn">RESTART</button>
+</div>
+
+<script>
+function typeWriterEffect(message, elementId, speed=80) {
+  let i=0; const element=document.getElementById(elementId); element.innerHTML="";
+  function typing(){ if(i<message.length){element.innerHTML+=message.charAt(i);i++;setTimeout(typing,speed);} else { startMarquee(element);} }
+  typing();
+}
+function startMarquee(element) {
+  let pos = element.parentElement.offsetWidth;
+  const scrollSpeed = 2;
+  function scroll(){
+    pos -= scrollSpeed;
+    element.style.transform=`translateX(${pos}px)`;
+    if(pos > -element.scrollWidth - 40){
+      requestAnimationFrame(scroll);
+    } else {
+      const envelope=document.getElementById("envelope");
+      envelope.classList.add("fade-out");
+      setTimeout(()=>{
+        envelope.style.display="none";
+        const present=document.getElementById("present");
+        present.classList.add("visible");
+        document.getElementById("presentText").style.display="block";
+      }, 500); // faster disappear
+    }
+  }
+  scroll();
+}
+function openEnvelope(){
+  document.getElementById("hint").style.display="none";
+  document.getElementById("flap").style.transform="rotateX(-180deg)";
+  setTimeout(()=>{document.getElementById("letter").style.top="0";typeWriterEffect("HAPPY NATIONAL BOYFRIEND DAY TO GAURAV ❤","letterText",60);},500);
+  setTimeout(()=>{startFireworks();},1500);
+}
+function openPresent(){
+  const present=document.getElementById("present");present.classList.add("shake");
+  setTimeout(()=>{present.classList.remove("shake");document.getElementById("ticket").classList.add("show");
+    setTimeout(()=>{document.getElementById("present2").classList.add("visible");document.getElementById("presentText2").style.display="block";},2000);
+  },500);
+}
+function openPresent2(){
+  const present2=document.getElementById("present2");present2.classList.add("shake");
+  setTimeout(()=>{present2.classList.remove("shake");const loveContainer=document.getElementById("loveContainer");loveContainer.classList.add("show");
+    setTimeout(()=>{document.querySelectorAll(".love-pic").forEach((p,i)=>setTimeout(()=>p.classList.add("show"),i*800));},200);
+    setTimeout(()=>{document.querySelector(".love-text").classList.add("show");},1800);
+    setTimeout(()=>{document.getElementById("restartBtn").style.display="inline-block";},3000);
+  },500);
+}
+document.getElementById("restartBtn").addEventListener("click",()=>location.reload());
+
+/* Fireworks */
+function startFireworks(){
+  const canvas=document.getElementById("fireworks");const ctx=canvas.getContext("2d");
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;canvas.style.display="block";
+  let particles=[];function createFirework(){let x=Math.random()*canvas.width;let y=Math.random()*canvas.height/2;
+    for(let i=0;i<180;i++){particles.push({x,y,angle:Math.random()*2*Math.PI,speed:Math.random()*4+2,radius:Math.random()*3+2,alpha:1,color:`hsl(${Math.random()*360},100%,50%)`});}}
+  function animate(){ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach((p,i)=>{p.x+=Math.cos(p.angle)*p.speed;p.y+=Math.sin(p.angle)*p.speed;p.alpha-=0.01;ctx.beginPath();ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);ctx.fillStyle=p.color;ctx.shadowBlur=60;ctx.shadowColor=p.color;ctx.globalAlpha=p.alpha;ctx.fill();ctx.globalAlpha=1;});
+    particles=particles.filter(p=>p.alpha>0);requestAnimationFrame(animate);}
+  setInterval(createFirework,400);animate();}
+</script>
+</body>
+</html>
